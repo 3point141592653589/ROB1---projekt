@@ -35,5 +35,5 @@ Princip kalibrace a transformace:
 	levý spodní kvadrál = samé nuly, pravý spodní = identita + vpravo nahoře zadaná výška z, pravý horní kvartál - 1. sloupec 0, 2. sloupec = 2D souřadnice v bázi robota
 
 Doplňující info:
-Transformační matice výše již použít k výpočtu IK robota
- 	
+Transformační matice výše lze použít k výpočtu IK robota
+Všechny uhly jsou konstantní - Chytám vždy svisle s osami end efectoru vodorovnými s osami přípravku
