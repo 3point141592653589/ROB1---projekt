@@ -1,5 +1,7 @@
 Soubory:
 
+Princit tramsformace.txt  - Slovní popis postupu nalezení trasformace mezi soustavami a výpočtu souřadnic
+                            bodů v soustave robota, pokud jsou známy v souřadnicích přípravku.
 02_homography.py          - vzorový program pro kalibraci upravený aby kalibroval podle dvou diagonálních markerů
 02_homography - kopie.py  - pokus o získání transformační matice - moc nedopad
 kalibrace1.py             - kalibrace ze vzorového obrázku nebo z kamery; výpočet úhlu mezi soustavami
