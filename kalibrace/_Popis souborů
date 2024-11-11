@@ -1,0 +1,12 @@
+Soubory:
+
+02_homography.py          - vzorový program pro kalibraci upravený aby kalibroval podle dvou diagonálních markerů
+02_homography - kopie.py  - pokus o získání transformační matice - moc nedopad
+kalibrace1.py             - kalibrace ze vzorového obrázku nebo z kamery; výpočet úhlu mezi soustavami
+kalibrace1_robot.py       - doplněno o čtení polohy manipulátoru, výpočet matic nutných k transformaci mezi
+                            souřadnicemi kamery a robota
+move simple.py            - využití kalibrace1_robot.py k výpočtu polohy v souřadnicích robota ze souřadnic přípravku
+ostatní soubory           - nutné k chodu předchozích
+
+
+kromě 02_homography.py není nic ozkoušeno - hrozí chyby
