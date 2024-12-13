@@ -71,10 +71,10 @@ def main():
 
 
 
-    img = scan_picture() # take picture with camera
+    #img = scan_picture() # take picture with camera
 
 
-    #img = cv2.imread("aruco.jpg")  # load picture from file
+    img = cv2.imread("aruco.jpg")  # load picture from file
 
 
     assert img is not None
@@ -86,7 +86,7 @@ def main():
     detector = cv2.aruco.ArucoDetector(aruco_dict)
     corners, ids, rejected = detector.detectMarkers(gray)
 
-    n_markers = 2
+    n_markers = 4
     corners = np.array(corners).reshape(n_markers, 4, 2)
 
     # Sort the corners by the detected ids
@@ -102,8 +102,8 @@ def main():
     # show some corners
     plt.scatter(*corners[0, 0], c="r")
     plt.scatter(*corners[0, 1], c="g")
-    plt.scatter(*corners[1, 2], c="b")
-    plt.scatter(*corners[1, 3], c="y")
+    plt.scatter(*corners[3, 2], c="b")
+    plt.scatter(*corners[3, 3], c="y")
 
 
     plt.show()

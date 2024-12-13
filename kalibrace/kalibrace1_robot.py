@@ -79,10 +79,10 @@ def main(robot):
 
 
 
-    img = scan_picture() # take picture with camera
+    #img = scan_picture() # take picture with camera
 
 
-    #img = cv2.imread("aruco.jpg")  # load picture from file
+    img = cv2.imread("aruco.jpg")  # load picture from file
 
 
     assert img is not None
@@ -94,7 +94,7 @@ def main(robot):
     detector = cv2.aruco.ArucoDetector(aruco_dict)
     corners, ids, rejected = detector.detectMarkers(gray)
 
-    n_markers = 2
+    n_markers = 4
     corners = np.array(corners).reshape(n_markers, 4, 2)
 
     # Sort the corners by the detected ids
@@ -110,8 +110,8 @@ def main(robot):
     # show some corners
     plt.scatter(*corners[0, 0], c="r")
     plt.scatter(*corners[0, 1], c="g")
-    plt.scatter(*corners[1, 2], c="b")
-    plt.scatter(*corners[1, 3], c="y")
+    plt.scatter(*corners[3, 2], c="b")
+    plt.scatter(*corners[3, 3], c="y")
 
 
     plt.show()
@@ -181,21 +181,19 @@ def main(robot):
 
 
    
-    #q_rad = robot.get_q ( )
-    #pose = robot.fk( q_rad )
-    pose = np.array([[-1, 0, 0, 0.5],[0,1,0,0],[0,0,-1,0.1],[0,0,0,1]])
+    q_rad = robot.get_q ( )
+    pose = robot.fk( q_rad )
 
-    d_base = [pose[0,3],pose[1,3]]
+    d_base = [pose[0,3],[pose[1,3]]]
     thc = np.arccos(pose[0,0])
 
-    d = [80,60]
-    #d = [60,80]
+    d = [0.8,0.6]
     d_paper = to_homogeneous(d)
     d_cam = from_homogeneous(H @ d_paper)
 
 
-    th_fin = thc + th
-    rot = np.array([[np.cos(th_fin), -np.sin(th_fin)],[np.sin(th_fin), np.cos(th_fin)]])
+    th_fin = thc + np.arccos(pose[0,0])
+    rot = [[np.cos(th_fin), -np.sin(th_fin)],[np.sin(th_fin), np.cos(th_fin)]]
 
     T = d_base - rot@ d_cam
 

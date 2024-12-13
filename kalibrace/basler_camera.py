@@ -13,8 +13,7 @@ __credits__ = []
 __all__ = []
 
 import numpy as np
-import typing
-from numpy.typing import NDArray
+from nptyping import NDArray, Shape
 # dataclass for camera class definition
 from dataclasses import dataclass
 # camera interface libraries
@@ -238,7 +237,7 @@ class BaslerCamera:
                 # Start grabbing images
                 self.camera.StartGrabbing(pylon.GrabStrategy_LatestImageOnly)
 
-    def get_image(self, time_out: int = 0) -> NDArray:
+    def get_image(self, time_out: int = 0) -> NDArray[Shape["*, *, 3"], Any]:
         """
         The method obtain one image from the camera. The method waits for
         the image until the image is obtained or timeout is reached.
@@ -274,7 +273,7 @@ class BaslerCamera:
             res.Release()
         return image
 
-    def grab_image(self, time_out: int = 0) -> NDArray:
+    def grab_image(self, time_out: int = 0) -> NDArray[Shape[" *, *, 3"], Any]:
         """
         The method is enccapsulation of the method get_image. This method
         chceck if the grabing of images is started. If not, the grabbing
