@@ -45,7 +45,7 @@ def target_to_cam(aru_id,image):
     point = np.eye(4)
     point[:3, 3] = [0.18,0.14,0]
 
-    cam = target2cam @ point
+    cam = point @ target2cam 
     #print (cam)
     #'''
     

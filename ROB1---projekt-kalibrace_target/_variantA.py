@@ -69,7 +69,7 @@ if targ_to_cam is None:
     print("No target detected")
     exit(1)
 
-target_to_base = cam_to_base @ targ_to_cam
+target_to_base =  targ_to_cam @ cam_to_base
 
 i = 1
 j = i+1
@@ -82,13 +82,13 @@ poz = np.eye(4)
 for cube in data:
     poz[:2, 3] = cube/1000
     poz[2,3] = 0.01
-    q = move_ik(robot, target_to_base @ poz)
+    q = move_ik(robot, poz @ target_to_base)
     poz[2,3] = 0
-    q = move_ik(robot, target_to_base @ poz)
+    q = move_ik(robot, poz @ target_to_base)
     #robot.gripper.control_pozition(-800)
     poz[2,3] = 0.01
-    q = move_ik(robot, target_to_base @ poz)
-    q [0] = q[0]+np.pi/3
+    q = move_ik(robot, poz @ target_to_base)
+    q [0] = q[0]+np.pi/6
     robot.move_to_q (q)
     robot.wait_for_motion_stop ( )
     #robot.gripper.control_pozition(800)
