@@ -28,11 +28,13 @@ def save_image_conf(robot, camera=None, pos_goal=None, id=None, dir="handeye"):
 
     q_rad = robot.get_q( )
     pos = robot.fk(q_rad)
+    q = robot.get_q()
     if pos_goal is None:
         pos_goal = pos
     cv2.imwrite(Path(dir) / Path(f"image_{id}.png"), img)
     np.save(Path(dir) / Path(f"pos_goal_{id}"), pos_goal)
     np.save(Path(dir) / Path(f"pos_{id}"), pos)
+    np.save(Path(dir) / Path(f"joints_{id}"), q)
     
 
     
@@ -49,7 +51,7 @@ def move_ik(robot, pos_goal):
     robot_q = robot.get_q()
     q = min(q_radlim, key=lambda x: np.linalg.norm(robot_q - x))
 
-    robot.move_to_q (q_radlim[0])
+    robot.move_to_q (q)
     robot.wait_for_motion_stop ( )
 
 def init_camera():

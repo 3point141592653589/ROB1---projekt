@@ -10,7 +10,8 @@ def get_camera_pose(
     K: np.ndarray,
     dist: np.ndarray,
     aruco_dictionary_id=cv.aruco.DICT_4X4_50,
-    method=cv.SOLVEPNP_IPPE,
+    method=cv.SOLVEPNP_IPPE_SQUARE,
+    vis=False,
 ) -> np.ndarray | None:
     detector = cv.aruco.ArucoDetector(
         cv.aruco.getPredefinedDictionary(aruco_dictionary_id),
@@ -20,6 +21,8 @@ def get_camera_pose(
         return None
     objps = []
     pixelps = []
+    if vis:
+        img_vis = img.copy()
     for c, id in zip(corners, ids):
         if int(id) not in markers:
             continue
@@ -29,8 +32,13 @@ def get_camera_pose(
             objp[:2] = np.array(center) + size * np.array(signs) / 2
             objps.append(objp)
             pixelps.append(pixelp)
+            if vis:
+                cv.drawMarker(img_vis, pixelp.astype("uint32"), (0, 0, 255))
     if not pixelps:
         return None
+    if vis:
+        cv.imshow("aruco corners", img_vis)
+        cv.waitKey(0)
     _, rvec, tvec = cv.solvePnP(
         np.array(objps),
         np.array(pixelps),
@@ -47,8 +55,8 @@ def get_camera_pose(
 
 
 if __name__ == "__main__":
-    img = cv.imread("../handeye_data/image_4.png")
-    K = np.load("./cam_params/K.npy")
-    dist = np.load("./cam_params/dist.npy")
-    x = get_camera_pose(img, {2: ((0, 0), 0.035)}, K, dist)
+    img = cv.imread("./im1.bmp")
+    K = np.load("./cam_params/25mm2/K.npy")
+    dist = np.load("./cam_params/25mm2/dist.npy")
+    x = get_camera_pose(img, {1: ((0, 0), 0.0375)}, K, dist, vis=True)
     print(x)
