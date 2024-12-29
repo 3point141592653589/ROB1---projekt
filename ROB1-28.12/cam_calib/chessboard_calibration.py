@@ -38,17 +38,27 @@ def chessboard_calibration(chessboard_dims: tuple, square_size: float, imgs_path
 
             # Draw and display the corners
             cv.drawChessboardCorners(img, chessboard_dims, corners2, ret)
-            cv.imshow("img", img)
-            cv.waitKey(250)
-            #cv.waitKey(0)
+
+            scale = 0.5
+            resized_img = cv.resize(img, None, fx=scale, fy=scale, interpolation=cv.INTER_LINEAR)
+
+            cv.imshow("img", resized_img)
+            #cv.waitKey(250)
+            cv.waitKey(0)
 
     cv.destroyAllWindows()
-    return cv.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
-
+    return cv.calibrateCamera(
+    objpoints, 
+    imgpoints, 
+    gray.shape[::-1], 
+    None, 
+    None, 
+    flags=cv.CALIB_FIX_K3 | cv.CALIB_FIX_K4 | cv.CALIB_FIX_K5 | cv.CALIB_FIX_K6 | cv.CALIB_ZERO_TANGENT_DIST
+)
 
 if __name__ == "__main__":
-    #err, K, dist, _, _ = chessboard_calibration((9, 6), 1, "./chess30all")
-    err, K, dist, _, _ = chessboard_calibration((9, 6), 1, "./chessboard30")
+    err, K, dist, _, _ = chessboard_calibration((9, 6), 1, "./chess30new")
+    #err, K, dist, _, _ = chessboard_calibration((9, 6), 1, "./chessboard30")
     print(err)
     print(K)
     dir = Path("./cam_calib/cam_params")

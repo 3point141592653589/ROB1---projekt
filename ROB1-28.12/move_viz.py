@@ -28,12 +28,12 @@ def plot_transform(_,T,color='k', scale=1.0):
     scale: Velikost směrových os
     """
     # Extrakce polohy
-    origin = T[:3, 3]
+    origin = T[:3, 3] * scale
 
     # Extrakce směrových os (x, y, z) z rotační části matice
-    x_axis = T[:3, 0] * scale
-    y_axis = T[:3, 1] * scale
-    z_axis = T[:3, 2] * scale
+    x_axis = T[:3, 0]
+    y_axis = T[:3, 1]
+    z_axis = T[:3, 2]
 
     # Vykreslení směrových os
     ax.quiver(*origin, *x_axis, color='r', label='X' if 'X' not in ax.get_legend_handles_labels()[1] else "")
