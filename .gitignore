@@ -13,3 +13,12 @@ pick_examples.py
 test move copy.py
 test move.py
 test move.py
+cam_calib/cam_params/phone
+cam_calib/chessboard30
+cam_calib/chessboard30picked
+cam_calib/deska-1-2
+cam_calib/aruco-20241229T201232Z-001.zip
+cam_calib/chess30new-20241229T141117Z-001.zip
+cam_calib/chessboard30-20241229T141118Z-001.zip
+handeye_data3
+handeye_data-20241229T151540Z-001.zip

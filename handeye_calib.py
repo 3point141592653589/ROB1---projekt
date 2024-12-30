@@ -14,12 +14,24 @@ def homo_to_R_t(C, inv=False):
     return R, t
 
 
+def get_outlier_indices_iqr(arr, k=1.5):
+    q1 = np.percentile(arr, 25)
+    q3 = np.percentile(arr, 75)
+    iqr = q3 - q1
+    low_bound = q1 - k * iqr
+    high_bound = q3 + k * iqr
+    return np.where((arr < low_bound) | (arr > high_bound))[0]  # outlier indices
+    # Or for inliers: return np.where((arr >= low_bound) & (arr <= high_bound))[0]
+
+
 def main():
-    K = np.load("cam_calib/cam_params/25mm2/K.npy")
-    dist = np.load("cam_calib/cam_params/25mm2/dist.npy")
-    calib_data = Path("handeye_data2/")
+    K = np.load("cam_calib/cam_params/K.npy")
+    dist = np.load("cam_calib/cam_params/dist.npy")
+    calib_data = Path("handeye_data/")
     out_dir = Path("handeye_output/")
     n_data = len(list(calib_data.glob("*"))) // 4
+    enhance = True
+    vis = False
 
     R_base2gripper = []
     t_base2gripper = []
@@ -27,77 +39,8 @@ def main():
     t_target2cam = []
 
     missed = 0
-    exclude_i = [
-        4,
-        8,
-        9,
-        10,
-        13,
-        14,
-        16,
-        18,
-        20,
-        38,
-        53,
-        61,
-        60,
-        62,
-        69,
-        82,
-        85,
-        86,
-        96,
-        102,
-        104,
-        108,
-        113,
-        120,
-        125,
-        128,
-        129,
-        141,
-        144,
-        145,
-        146,
-        156,
-        157,
-    ]
-    handpicked = [
-        0,
-        5,
-        12,
-        22,
-        28,
-        32,
-        33,
-        37,
-        41,
-        42,
-        44,
-        45,
-        54,
-        56,
-        64,
-        68,
-        70,
-        72,
-        93,
-        97,
-        98,
-        100,
-        105,
-        114,
-        117,
-        118,
-        136,
-        140,
-        190,
-        192,
-        194,
-        200,
-        204,
-    ]
-    vis = False
+    handpicked = []
+    exclude_i = []
     undetected = []
 
     for i in range(n_data):
@@ -119,6 +62,8 @@ def main():
             dist,
             method=cv.SOLVEPNP_IPPE_SQUARE,
             vis=vis,
+            enhance=enhance,
+            winsize=(7, 7),
         )
         if target2cam is None:
             missed += 1
@@ -141,14 +86,18 @@ def main():
         t_target2cam,
     )
 
+    checksums = np.array([g[2] + t[2] for g, t in zip(t_base2gripper, t_target2cam)])
+    print(get_outlier_indices_iqr(checksums, 1.5))
+
     cam2base = np.eye(4)
     cam2base[:3, :3] = R
     cam2base[:3, 3] = t.squeeze()
     out_dir.mkdir(exist_ok=True)
-    np.save(out_dir / "cam2base.npy", cam2base)
+    np.save(out_dir / "cam2ase.npy", cam2base)
 
     print(f"missed {missed} photos")
     print(f"undetected: {undetected}")
+    print(f"checksums: {checksums}")
     print(t)
 
 
