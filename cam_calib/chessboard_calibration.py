@@ -99,7 +99,7 @@ def chessboard_calibration(
         method(objpoints, imgpoints, gray)
 
         cv.imshow("img", gray)
-        cv.waitKey(0)
+        cv.waitKey(50)
 
     cv.destroyAllWindows()
     flags = cv.CALIB_FIX_K3
@@ -140,14 +140,14 @@ if __name__ == "__main__":
     method = CharucoMethod((10, 14), 20, 15)
     err, K, dist, _, _ = chessboard_calibration(
         method,
-        "./phone_charuco/",
+        "./cam_calib/charuco20_15/",
         K_init=K_init,
         no_dist=False,
     )
     print(err)
     print(dist)
     print(K)
-    dir = Path("./cam_params/phone/")
+    dir = Path("./cam_calib/cam_params/")
     dir.mkdir(exist_ok=True)
     np.save(dir / "K.npy", K)
     np.save(dir / "dist.npy", dist)

@@ -84,14 +84,13 @@ class ArucoMethod(PoseMethod):
         corners, ids, rejected = self.detector.detectMarkers(img)
         if ids is None:
             return None, None
-        gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         objps = []
         pixelps = []
         for c, id in zip(corners, ids):
             if int(id) not in self.markers:
                 continue
             rc = cv.cornerSubPix(
-                gray,
+                img,
                 c.astype("float32").reshape(4, 1, 2),
                 winSize=self.winsize,  # Size of search window
                 zeroZone=(-1, -1),  # Indicates no zero zone
@@ -113,8 +112,8 @@ class ArucoMethod(PoseMethod):
         _, rvec, tvec = cv.solvePnP(
             np.array(objps),
             np.array(pixelps),
-            K,
-            dist,
+            self.K,
+            self.dist,
             flags=method,
         )
         return rvec, tvec
@@ -162,8 +161,7 @@ def get_camera_pose(
         cv.imshow("aruco corners", grey)
         cv.waitKey(0)
     if rvec is None:
-        e = "Couldn't get target pose"
-        raise RuntimeWarning(e)
+        return None
     R = cv.Rodrigues(rvec)[0]
     ret = np.eye(4)
     ret[:3, :3] = R
@@ -173,9 +171,9 @@ def get_camera_pose(
 
 
 if __name__ == "__main__":
-    img = cv.imread("./phone_charuco_pos/1735603658493.jpg")
-    K = np.load("./cam_params/phone/K.npy")
-    dist = np.load("./cam_params/phone/dist.npy")
-    method = CharucoMethod(K, dist, (3, 3), 30, 22)
+    img = cv.imread("./cam_calib/charuco_test.bmp")
+    K = np.load("./cam_calib/cam_params/K.npy")
+    dist = np.load("./cam_calib/cam_params/dist.npy")
+    method = CharucoMethod(K, dist, (4, 4), 25, 18)
     x = get_camera_pose(img, method, vis=True)
     print(x)
