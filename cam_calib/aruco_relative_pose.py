@@ -1,7 +1,123 @@
 from __future__ import annotations
 
+from typing import Protocol
+
 import cv2 as cv
 import numpy as np
+
+
+class PoseMethod(Protocol):
+    def __call__(
+        self,
+        img: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray] | tuple[None, None]: ...
+
+
+class CharucoMethod(PoseMethod):
+    def __init__(
+        self,
+        K,
+        dist,
+        board_size,
+        square_size,
+        aruco_size,
+        aruco_dict_id=cv.aruco.DICT_4X4_100,
+        legacypattern=True,
+    ) -> None:
+        ardict = cv.aruco.getPredefinedDictionary(aruco_dict_id)
+        self.board = cv.aruco.CharucoBoard(
+            board_size,
+            square_size,
+            aruco_size,
+            ardict,
+            None,
+        )
+        self.board.setLegacyPattern(legacypattern)
+        self.detector = cv.aruco.CharucoDetector(self.board)
+        self.K = K
+        self.dist = dist
+
+    def __call__(
+        self,
+        img: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray] | tuple[None, None]:
+        charucoCorners, charucoIds, markerCorners, markerIds = (
+            self.detector.detectBoard(img)
+        )
+        if charucoCorners is None:
+            return None, None
+        objp, imgp = self.board.matchImagePoints(charucoCorners, charucoIds)
+        cv.aruco.drawDetectedCornersCharuco(img, charucoCorners, charucoIds)
+        if len(objp) < 4:
+            return None, None
+        method = cv.SOLVEPNP_IPPE if len(objp) > 4 else cv.SOLVEPNP_IPPE_SQUARE
+        _, rvec, tvec = cv.solvePnP(
+            np.array(objp),
+            np.array(imgp),
+            self.K,
+            self.dist,
+        )
+        return rvec, tvec
+
+
+class ArucoMethod(PoseMethod):
+    def __init__(
+        self,
+        markers: dict[int, tuple[tuple[float, float], float]],
+        K,
+        dist,
+        winsize=(7, 7),
+        aruco_dictionary_id=cv.aruco.DICT_4X4_50,
+    ) -> None:
+        self.detector = cv.aruco.ArucoDetector(
+            cv.aruco.getPredefinedDictionary(aruco_dictionary_id),
+        )
+        self.markers = markers
+        self.K = K
+        self.dist = dist
+        self.winsize = winsize
+
+    def __call__(
+        self,
+        img: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray] | tuple[None, None]:
+        corners, ids, rejected = self.detector.detectMarkers(img)
+        if ids is None:
+            return None, None
+        gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        objps = []
+        pixelps = []
+        for c, id in zip(corners, ids):
+            if int(id) not in self.markers:
+                continue
+            rc = cv.cornerSubPix(
+                gray,
+                c.astype("float32").reshape(4, 1, 2),
+                winSize=self.winsize,  # Size of search window
+                zeroZone=(-1, -1),  # Indicates no zero zone
+                criteria=(cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001),
+            )
+            center, size = self.markers[int(id)]
+            for pixelp, signs in zip(
+                rc.squeeze(),
+                [(-1, 1), (1, 1), (1, -1), (-1, -1)],
+            ):
+                objp = np.zeros(3)
+                objp[:2] = np.array(center) + size * np.array(signs) / 2
+                objps.append(objp)
+                pixelps.append(pixelp)
+                cv.drawMarker(img, pixelp.astype("uint32"), (0, 0, 255))
+        if not pixelps:
+            return None, None
+        method = cv.SOLVEPNP_IPPE_SQUARE if len(pixelps) == 1 else cv.SOLVEPNP_IPPE
+        _, rvec, tvec = cv.solvePnP(
+            np.array(objps),
+            np.array(pixelps),
+            K,
+            dist,
+            flags=method,
+        )
+        return rvec, tvec
 
 
 def enhance_dark_image(img):
@@ -11,11 +127,9 @@ def enhance_dark_image(img):
     else:
         gray = img.copy()
 
-    # Method 1: CLAHE enhancement
     clahe = cv.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
     enhanced = clahe.apply(gray)
 
-    # Method 2: Increase contrast/brightness
     alpha = 2.0  # Contrast control (1.0-3.0)
     beta = 30  # Brightness control (0-100)
     enhanced = cv.convertScaleAbs(enhanced, alpha=alpha, beta=beta)
@@ -39,59 +153,17 @@ def detect_aruco_enhanced(img, detector):
 
 def get_camera_pose(
     img: np.ndarray,
-    markers: dict[int, tuple[tuple[float, float], float]],
-    K: np.ndarray,
-    dist: np.ndarray,
-    aruco_dictionary_id=cv.aruco.DICT_4X4_50,
-    method=cv.SOLVEPNP_IPPE_SQUARE,
+    method: PoseMethod,
     vis=False,
-    enhance=False,
-    winsize=(21, 21),
 ) -> np.ndarray | None:
-    detector = cv.aruco.ArucoDetector(
-        cv.aruco.getPredefinedDictionary(aruco_dictionary_id),
-    )
-    if enhance:
-        corners, ids, rejected, enhanced = detect_aruco_enhanced(img, detector)
-    else:
-        corners, ids, rejected = detector.detectMarkers(img)
-    if ids is None:
-        return None
-    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    objps = []
-    pixelps = []
+    grey = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    rvec, tvec = method(grey)
     if vis:
-        img_vis = enhanced if enhance else img.copy()
-    for c, id in zip(corners, ids):
-        if int(id) not in markers:
-            continue
-        rc = cv.cornerSubPix(
-            gray,
-            c.astype("float32").reshape(4, 1, 2),
-            winSize=winsize,  # Size of search window
-            zeroZone=(-1, -1),  # Indicates no zero zone
-            criteria=(cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001),
-        )
-        center, size = markers[int(id)]
-        for pixelp, signs in zip(rc.squeeze(), [(-1, 1), (1, 1), (1, -1), (-1, -1)]):
-            objp = np.zeros(3)
-            objp[:2] = np.array(center) + size * np.array(signs) / 2
-            objps.append(objp)
-            pixelps.append(pixelp)
-            if vis:
-                cv.drawMarker(img_vis, pixelp.astype("uint32"), (0, 0, 255))
-    if not pixelps:
-        return None
-    if vis:
-        cv.imshow("aruco corners", img_vis)
+        cv.imshow("aruco corners", grey)
         cv.waitKey(0)
-    _, rvec, tvec = cv.solvePnP(
-        np.array(objps),
-        np.array(pixelps),
-        K,
-        dist,
-        flags=method,
-    )
+    if rvec is None:
+        e = "Couldn't get target pose"
+        raise RuntimeWarning(e)
     R = cv.Rodrigues(rvec)[0]
     ret = np.eye(4)
     ret[:3, :3] = R
@@ -101,8 +173,9 @@ def get_camera_pose(
 
 
 if __name__ == "__main__":
-    img = cv.imread("./im1.bmp")
-    K = np.load("./cam_params/25mm2/K.npy")
-    dist = np.load("./cam_params/25mm2/dist.npy")
-    x = get_camera_pose(img, {1: ((0, 0), 0.0375)}, K, dist, vis=True)
+    img = cv.imread("./phone_charuco_pos/1735603658493.jpg")
+    K = np.load("./cam_params/phone/K.npy")
+    dist = np.load("./cam_params/phone/dist.npy")
+    method = CharucoMethod(K, dist, (3, 3), 30, 22)
+    x = get_camera_pose(img, method, vis=True)
     print(x)
