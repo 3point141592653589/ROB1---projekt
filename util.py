@@ -22,7 +22,7 @@ def save_image_conf(robot, camera=None, pos_goal=None, id=None, dir="handeye"):
     if (img is not None) and (img.size > 0):
         cv2.namedWindow('Camera image', cv2.WINDOW_NORMAL)
         cv2.imshow('Camera image', img)
-        cv2.waitKey(0)
+        cv2.waitKey(100)
     else:
         print("The image was not captured.")
 
