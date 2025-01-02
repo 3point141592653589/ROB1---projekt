@@ -1,15 +1,20 @@
 import cv2 as cv
 import numpy as np
+from ctu_crs import CRS97
 
 
 def main():
     K = np.load("./cam_calib/cam_params/K.npy")
     dist = np.load("./cam_calib/cam_params/dist.npy")
-    cam2base = np.load("./handeye_output/cam2base.npy")
-    base2grip = np.load("./handeye_data/pos_39.npy")
-    img = cv.imread("./handeye_data/image_39.png")
+    cam2base = np.load("./handeye_output_refined/cam2base.npy")
+    dh_offset = np.load("./handeye_output_refined/dh_offset.npy")
+    q = np.load("./handeye_data/joints_350.npy")
+    img = cv.imread("./handeye_data/image_350.png")
+    robot = CRS97(None)
+    robot.dh_offset = dh_offset
+    grip2base = robot.fk(q)
 
-    grip = base2grip[:3, 3]
+    grip = grip2base[:3, 3]
     base2cam = np.linalg.inv(cam2base)
     rvec, _ = cv.Rodrigues(base2cam[:3, :3])
     t = base2cam[:3, 3]

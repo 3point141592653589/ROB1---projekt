@@ -6,7 +6,7 @@ import numpy as np
 
 
 class CalibMethod(Protocol):
-    def __call__(self, objpoints, imgpoints, img): ...
+    def __call__(self, objpoints, imgpoints, img) -> bool: ...
 
 
 class CharucoMethod(CalibMethod):
@@ -29,16 +29,17 @@ class CharucoMethod(CalibMethod):
         self.board.setLegacyPattern(legacyPattern)
         self.detector = cv.aruco.CharucoDetector(self.board)
 
-    def __call__(self, objpoints, imgpoints, img):
+    def __call__(self, objpoints, imgpoints, img) -> bool:
         charucoCorners, charucoIds, markerCorners, markerIds = (
             self.detector.detectBoard(img)
         )
         if charucoCorners is None:
-            return
+            return False
         objp, imgp = self.board.matchImagePoints(charucoCorners, charucoIds)
         objpoints.append(objp)
         imgpoints.append(imgp)
         cv.aruco.drawDetectedCornersCharuco(img, charucoCorners, charucoIds)
+        return True
 
 
 class ChessboardMethod(CalibMethod):
@@ -50,7 +51,7 @@ class ChessboardMethod(CalibMethod):
             2,
         )
 
-    def __call__(self, objpoints, imgpoints, img):
+    def __call__(self, objpoints, imgpoints, img) -> bool:
         ret, corners = cv.findChessboardCorners(img, self.board_size, None)
 
         # If found, add object points, image points (after refining them)
@@ -64,6 +65,7 @@ class ChessboardMethod(CalibMethod):
 
             # Draw and display the corners
             cv.drawChessboardCorners(img, self.board_size, corners2, ret)
+        return ret
 
 
 def get_image_errors(imgpoints, objpoints, rvecs, tvecs, K, dist):
@@ -140,14 +142,13 @@ if __name__ == "__main__":
     method = CharucoMethod((10, 14), 20, 15)
     err, K, dist, _, _ = chessboard_calibration(
         method,
-        "./cam_calib/charuco20_15/",
+        "./charuco20_15/",
         K_init=K_init,
-        no_dist=False,
     )
     print(err)
     print(dist)
     print(K)
-    dir = Path("./cam_calib/cam_params/")
+    dir = Path("./cam_params/")
     dir.mkdir(exist_ok=True)
     np.save(dir / "K.npy", K)
     np.save(dir / "dist.npy", dist)

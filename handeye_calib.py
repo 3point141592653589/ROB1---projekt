@@ -3,7 +3,7 @@ from pathlib import Path
 import cv2 as cv
 import numpy as np
 
-from cam_calib.aruco_relative_pose import get_camera_pose, CharucoMethod
+from cam_calib.aruco_relative_pose import CharucoMethod, get_camera_pose
 
 
 def homo_to_R_t(C, inv=False):
@@ -30,14 +30,14 @@ def main():
     dist = np.load("cam_calib/cam_params/dist.npy")
     calib_data = Path("handeye_data/")
     out_dir = Path("handeye_output/")
-    method = CharucoMethod(K, dist, (4, 4), 0.025, 0.018)
-    n_data = len(list(calib_data.glob("*"))) // 3  # HACK: getting sick of this
-    
+    method = CharucoMethod(K, dist, (5, 5), 0.02, 0.015)
+    n_data = len(list(calib_data.glob("*"))) // 4  # HACK: getting sick of this
+
     enhance = False
     vis = False
 
-    R_base2gripper = []
-    t_base2gripper = []
+    R_gripper2base = []
+    t_gripper2base = []
     R_target2cam = []
     t_target2cam = []
 
@@ -69,35 +69,31 @@ def main():
         t_target2cam.append(t_t2c)
 
         gripper2base = np.load(calib_data / f"pos_{i}.npy")
-        R_b2g, t_b2g = homo_to_R_t(gripper2base, inv=True)
-        R_base2gripper.append(R_b2g)
-        t_base2gripper.append(t_b2g)
+        R_g2b, t_g2b = homo_to_R_t(gripper2base)
+        R_gripper2base.append(R_g2b)
+        t_gripper2base.append(t_g2b)
 
-    R, t = cv.calibrateHandEye(
-        R_base2gripper,
-        t_base2gripper,
+    Rt2g, tt2g, Rc2b, tc2b = cv.calibrateRobotWorldHandEye(
+        R_gripper2base,
+        t_gripper2base,
         R_target2cam,
         t_target2cam,
     )
 
-    checksums = np.array(
-        [
-            t[2] + (-R.T @ g)[2]
-            for g, t, R in zip(t_base2gripper, t_target2cam, R_base2gripper)
-        ],
-    )
-    print(get_outlier_indices_iqr(checksums, 1.5))
-
     cam2base = np.eye(4)
-    cam2base[:3, :3] = R
-    cam2base[:3, 3] = t.squeeze()
+    cam2base[:3, :3] = Rc2b
+    cam2base[:3, 3] = tc2b.squeeze()
+    target2gripper = np.eye(4)
+    target2gripper[:3, :3] = Rt2g
+    target2gripper[:3, 3] = tt2g.squeeze()
     out_dir.mkdir(exist_ok=True)
     np.save(out_dir / "cam2base.npy", cam2base)
+    np.save(out_dir / "target2gripper.npy", target2gripper)
 
     print(f"missed {missed} photos")
     print(f"undetected: {undetected}")
-    print(f"checksums: {checksums}")
-    print(t)
+    print(cam2base)
+    print(target2gripper)
 
 
 if __name__ == "__main__":

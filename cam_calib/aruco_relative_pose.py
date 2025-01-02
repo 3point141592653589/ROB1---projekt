@@ -155,10 +155,9 @@ def get_camera_pose(
     method: PoseMethod,
     vis=False,
 ) -> np.ndarray | None:
-    grey = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    rvec, tvec = method(grey)
+    rvec, tvec = method(img)
     if vis:
-        cv.imshow("aruco corners", grey)
+        cv.imshow("aruco corners", img)
         cv.waitKey(0)
     if rvec is None:
         return None
@@ -171,9 +170,9 @@ def get_camera_pose(
 
 
 if __name__ == "__main__":
-    img = cv.imread("./cam_calib/charuco_test.bmp")
-    K = np.load("./cam_calib/cam_params/K.npy")
-    dist = np.load("./cam_calib/cam_params/dist.npy")
+    img = cv.imread("./charuco_test.png")
+    K = np.load("./cam_params/K.npy")
+    dist = np.load("./cam_params/dist.npy")
     method = CharucoMethod(K, dist, (4, 4), 25, 18)
     x = get_camera_pose(img, method, vis=True)
     print(x)
