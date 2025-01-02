@@ -7,7 +7,7 @@ from ctu_crs import CRS97
 
 def save_image_conf(robot, camera=None, pos_goal=None, id=None, dir="handeye"):
     if not id:
-        id = len(list(Path(dir).glob("*"))) // 3
+        id = len(list(Path(dir).glob("*"))) // 4
 
     if pos_goal is not None:
         move_ik(robot, pos_goal)
@@ -22,7 +22,7 @@ def save_image_conf(robot, camera=None, pos_goal=None, id=None, dir="handeye"):
     if (img is not None) and (img.size > 0):
         cv2.namedWindow('Camera image', cv2.WINDOW_NORMAL)
         cv2.imshow('Camera image', img)
-        cv2.waitKey(100)
+        cv2.waitKey(1)
     else:
         print("The image was not captured.")
 

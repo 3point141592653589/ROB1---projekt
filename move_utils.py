@@ -70,52 +70,61 @@ if __name__ == "__main__":
     #robot.initialize()
     #robot.soft_home ( )
 
-    '''
-    corn1 = np.array([0.46, 0.22,0.235])
-    corn2 = np.array([0.46-0.155, 0.22-0.28, 0.235])
-    #'''
-    '''
-    corn1 = np.array([0.47, 0.26, 0.07])
-    corn2 = np.array([0.47-0.1425, 0.26-0.36, 0.07])
-    #'''
-    '''
-    corn1 = np.array([0.435, 0.19, 0.44])
-    corn2 = np.array([0.435-0.12, 0.19-0.22, 0.44])
-    #'''
-    '''
-    poz = np.eye(4)
-    poz[:3, :3] = rot_matrix(np.pi, "y") @ rot_matrix(np.pi/4, "z")
-    #'''
+    rots = [
+        rot_matrix(np.pi, "y") @ rot_matrix(np.pi/2, "z"), 
+        rot_matrix(np.pi, "y") @ rot_matrix(np.pi/2, "z"), 
+        rot_matrix(np.pi, "y") @ rot_matrix(np.pi/2, "z"),
 
+        
+        rot_matrix(5/6 * np.pi, "y") @ rot_matrix(np.pi/2, "z"),
+        rot_matrix(5/6 * np.pi, "y") @ rot_matrix(np.pi/2, "z"),
+        rot_matrix(5/6 * np.pi, "y") @ rot_matrix(np.pi/2, "z"),
 
+        rot_matrix(8/7 * np.pi, "y") @ rot_matrix(np.pi* 5/8, "z"),
+        rot_matrix(8/7 * np.pi, "y") @ rot_matrix(np.pi* 5/8, "z"),
 
-    '''
-    corn1 = np.array([0.36, -0.34, 0.08])
-    corn2 = np.array([0.36 + 0.16, -0.01, 0.08])
-    '''
-    '''
-    corn1 = np.array([0.38, 0, 0.1])
-    corn2 = np.array([0.52, -0.25, 0.1])
-    '''
-    corn1 = np.array([0.39, -0.33, 0.2])
-    corn2 = np.array([0.5, -0.05, 0.2])
-    '''
-    corn1 = np.array([0.49, -0.3, 0.07])
-    corn2 = np.array([0.47-0.13, -(0.26-0.34), 0.07])
-    #'''
-    '''
-    corn1 = np.array([0.435-0.12, -(0.19-0.21), 0.44])
-    corn2 = np.array([0.425, -0.21, 0.44])
-    #'''
+        rot_matrix(np.pi*5/6, "x") @ rot_matrix(-np.pi/2, "z"), 
+        rot_matrix(np.pi*5/6, "x") @ rot_matrix(-np.pi/2, "z"),
+        rot_matrix(np.pi*5/6, "x") @ rot_matrix(-np.pi/2, "z"),
+    ]
+    corns1 = [
+    np.array([0.38, -0.02, 0.2]),
+    np.array([0.36, -0.05, 0.07]),
+    np.array([0.375, -0.03, 0.14]),
+
+    np.array([0.37, -0.03, 0.2]),
+    np.array([0.36, -0.05, 0.07]),
+    np.array([0.37, -0.04, 0.14]),
+
+    np.array([0.425, -0.03, 0.2]),
+    np.array([0.43, -0.03, 0.15]),
+
+    np.array([0.4, -0.03, 0.17]),
+    np.array([0.38, -0.05, 0.13]),
+    ]
+    corns2 = [
+        np.array([0.53, 0.26, 0.2]),
+        np.array([0.54, 0.29, 0.07]),
+        np.array([0.53, 0.27, 0.14]),
+
+        np.array([0.46, 0.1, 0.2]),
+        np.array([0.49, 0.14, 0.07]),
+        np.array([0.48, 0.13, 0.14]),
+
+        np.array([0.59, 0.26, 0.2]),
+        np.array([0.595, 0.27, 0.15]),
+
+        np.array([0.54, 0.21, 0.17]),
+        np.array([0.54, 0.22, 0.13])
+        ]
     
-    poz = np.eye(4)
-    poz[:3, :3] = rot_matrix(np.pi, "y") @ rot_matrix(-np.pi/2, "z")
-
-
-
-    poz[2, 3] = corn1[2]
+    for rot, corn1, corn2 in zip(rots, corns1, corns2):
     
+        poz = np.eye(4)
+        poz[:3, :3] = rot
+        poz[2, 3] = corn1[2]
+        
 
-    move_grid(poz, corn1, corn2, robot)
+        move_grid(poz, corn1, corn2, robot, (5, 10))
 
     #robot.release()
