@@ -68,7 +68,11 @@ def optimize_reprojection(
 
         return np.array(errs)
 
-    result = least_squares(objective, initial_guess)
+    result = least_squares(
+        objective,
+        initial_guess,
+        method="lm",
+    )
     (
         tx_t2g,
         ty_t2g,
@@ -92,11 +96,17 @@ def optimize_reprojection(
 
     print(result.cost)
 
-    transform = np.eye(4)
-    transform[:3, :3] = cv.Rodrigues(np.array([r1_c2b, r2_c2b, r3_c2b]))[0].squeeze()
-    transform[:3, 3] = np.array([tx_c2b, ty_c2b, tz_c2b])
+    cam2base = np.eye(4)
+    cam2base[:3, :3] = cv.Rodrigues(np.array([r1_c2b, r2_c2b, r3_c2b]))[0].squeeze()
+    cam2base[:3, 3] = np.array([tx_c2b, ty_c2b, tz_c2b])
 
-    return transform, np.array([q0, q1, q2, q3, q4, q5])
+    target2gripper = np.eye(4)
+    target2gripper[:3, :3] = cv.Rodrigues(np.array([r1_t2g, r2_t2g, r3_t2g]))[
+        0
+    ].squeeze()
+    target2gripper[:3, 3] = np.array([tx_t2g, ty_t2g, tz_t2g])
+
+    return cam2base, target2gripper, np.array([q0, q1, q2, q3, q4, q5])
 
 
 def constrained_orthogonal_procrustes(
@@ -127,22 +137,22 @@ def constrained_orthogonal_procrustes(
 
 
 if __name__ == "__main__":
-    cam2base = np.load("./handeye_output/cam2base.npy")
-    target2gripper = np.load("./handeye_output/target2gripper.npy")
+    cam2base = np.load("./handeye_output5/cam2base.npy")
+    target2gripper = np.load("./handeye_output5/target2gripper.npy")
     K = np.load("./cam_calib/cam_params/K.npy")
     dist = np.load("./cam_calib/cam_params/dist.npy")
-    target_method = CharucoMethod((5, 5), 0.02, 0.015)
-    data_dir = Path("./handeye_data/")
-    out_dir = Path("./handeye_output_refined")
+    target_method = CharucoMethod((4, 4), 0.025, 0.018)
+    data_dir = Path("./handeye_data5/")
+    out_dir = Path("./handeye_output_refined5")
     out_dir.mkdir(exist_ok=True)
-    n_data = len(list(data_dir.glob("*"))) // 4  # HACK: getting sick of this
+    n_data = len(list(data_dir.glob("*"))) // 3  # HACK: getting sick of this
     objps, imgps, angles_list = [], [], []
     for i in range(n_data):
         image = cv.imread(str(data_dir / f"image_{i}.png"))
-        if not target_method(objps, imgps, image):
+        if image is None or not target_method(objps, imgps, image):
             continue
         angles_list.append(np.load(data_dir / f"joints_{i}.npy"))
-    cam2base_refined, dh_offset = optimize_reprojection(
+    cam2base_refined, target2gripper_refined, dh_offset = optimize_reprojection(
         target2gripper,
         cam2base,
         angles_list,
@@ -152,6 +162,20 @@ if __name__ == "__main__":
         dist,
         CRS97(None),
     )
-    print("refined", cam2base_refined, "original", cam2base, sep="\n")
+    print(
+        "cam2base",
+        "refined",
+        cam2base_refined,
+        "original",
+        cam2base,
+        "target2gripper",
+        target2gripper_refined,
+        "original",
+        target2gripper,
+        "offset",
+        dh_offset,
+        sep="\n",
+    )
     np.save(out_dir / "cam2base.npy", cam2base_refined)
+    np.save(out_dir / "target2gripper.npy", target2gripper_refined)
     np.save(out_dir / "dh_offset.npy", dh_offset)

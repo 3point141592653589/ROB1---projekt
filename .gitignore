@@ -35,3 +35,6 @@ cam_calib/charuco_test.png
 handeye_data5
 tst_reproj
 handeye_data (1).zip
+handeye_data_patek
+handeye_output_patek/drive-download-20250103T163455Z-001.zip
+sanity_check.py
