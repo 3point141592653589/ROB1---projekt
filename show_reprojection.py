@@ -4,14 +4,14 @@ import cv2 as cv
 import numpy as np
 from ctu_crs import CRS97
 
-cam2base = np.load("./handeye_output_patek/cam2base.npy")
+cam2base = np.load("./handeye_output_refined/cam2base.npy")
 target2gripper = np.load("./handeye_output_refined/target2gripper.npy")
 K = np.load("./cam_calib/cam_params/K.npy")
 dist = np.load("./cam_calib/cam_params/dist.npy")
 data_dir = Path("./handeye_data/")
-dh_offset = np.load("./handeye_output_patek/dh_offset.npy")
-img_is = [50, 204, 208, 224]
-# img_is = [40, 67, 200, 329, 350, 367]
+dh_offset = np.load("./handeye_output_refined/dh_offset.npy")
+# img_is = [50, 204, 208, 224]
+img_is = [40, 67, 200, 329, 350, 367]
 
 board_size = (6, 6)
 square_size = 0.02
