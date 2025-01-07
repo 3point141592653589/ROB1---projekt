@@ -1,82 +1,58 @@
 import numpy as np
 from ctu_crs import CRS97
-from .utils import euler2mat
-from .hardware_control import move_grid_save
 
+from .hardware_control import capture_grid
 
 robot = CRS97()
 robot.reset_motors()
 robot.initialize(home=False)
-# robot.initialize()
 # robot.soft_home ( )
 
 rots = [
-    euler2mat(
-        [
-            (np.pi, "y"),
-            (np.pi / 2, "z"),
-        ]
-    ),
-    euler2mat(
-        [
-            (np.pi, "y"),
-            (np.pi / 2, "z"),
-        ]
-    ),
-    euler2mat(
-        [
-            (np.pi, "y"),
-            (np.pi / 2, "z"),
-        ]
-    ),
-    euler2mat(
-        [
-            (5 / 6 * np.pi, "y"),
-            (np.pi / 2, "z"),
-        ]
-    ),
-    euler2mat(
-        [
-            (5 / 6 * np.pi, "y"),
-            (np.pi / 2, "z"),
-        ]
-    ),
-    euler2mat(
-        [
-            (5 / 6 * np.pi, "y"),
-            (np.pi / 2, "z"),
-        ]
-    ),
-    euler2mat(
-        [
-            (8 / 7 * np.pi, "y"),
-            (np.pi * 5 / 8, "z"),
-        ]
-    ),
-    euler2mat(
-        [
-            (8 / 7 * np.pi, "y"),
-            (np.pi * 5 / 8, "z"),
-        ]
-    ),
-    euler2mat(
-        [
-            (np.pi * 5 / 6, "x"),
-            (-np.pi / 2, "z"),
-        ]
-    ),
-    euler2mat(
-        [
-            (np.pi * 5 / 6, "x"),
-            (-np.pi / 2, "z"),
-        ]
-    ),
-    euler2mat(
-        [
-            (np.pi * 5 / 6, "x"),
-            (-np.pi / 2, "z"),
-        ]
-    ),
+    [
+        (np.pi, "y"),
+        (np.pi / 2, "z"),
+    ],
+    [
+        (np.pi, "y"),
+        (np.pi / 2, "z"),
+    ],
+    [
+        (np.pi, "y"),
+        (np.pi / 2, "z"),
+    ],
+    [
+        (5 / 6 * np.pi, "y"),
+        (np.pi / 2, "z"),
+    ],
+    [
+        (5 / 6 * np.pi, "y"),
+        (np.pi / 2, "z"),
+    ],
+    [
+        (5 / 6 * np.pi, "y"),
+        (np.pi / 2, "z"),
+    ],
+    [
+        (8 / 7 * np.pi, "y"),
+        (np.pi * 5 / 8, "z"),
+    ],
+    [
+        (8 / 7 * np.pi, "y"),
+        (np.pi * 5 / 8, "z"),
+    ],
+    [
+        (np.pi * 5 / 6, "x"),
+        (-np.pi / 2, "z"),
+    ],
+    [
+        (np.pi * 5 / 6, "x"),
+        (-np.pi / 2, "z"),
+    ],
+    [
+        (np.pi * 5 / 6, "x"),
+        (-np.pi / 2, "z"),
+    ],
 ]
 corns1 = [
     np.array([0.38, -0.02, 0.2]),
@@ -104,10 +80,6 @@ corns2 = [
 ]
 
 for rot, corn1, corn2 in zip(rots, corns1, corns2):
-    poz = np.eye(4)
-    poz[:3, :3] = rot
-    poz[2, 3] = corn1[2]
-
-    move_grid_save(poz, corn1, corn2, robot, (5, 10))
+    capture_grid(corn1, corn2, robot, (5, 10), euler_rot=rot)
 
 # robot.release()

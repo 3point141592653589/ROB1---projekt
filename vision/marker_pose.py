@@ -66,7 +66,7 @@ class ArucoPoseSolver(MarkerPoseSolver):
         markers: dict[int, tuple[tuple[float, float], float]],
         K: np.ndarray,
         dist: np.ndarray,
-        winsize=(7, 7),
+        winsize=(11, 11),
         aruco_dictionary_id=cv.aruco.DICT_4X4_50,
     ) -> None:
         self.detector = cv.aruco.ArucoDetector(
@@ -89,8 +89,9 @@ class ArucoPoseSolver(MarkerPoseSolver):
         for c, id in zip(corners, ids):
             if int(id) not in self.markers:
                 continue
+            gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
             rc = cv.cornerSubPix(
-                img,
+                gray,
                 c.astype("float32").reshape(4, 1, 2),
                 winSize=self.winsize,  # Size of search window
                 zeroZone=(-1, -1),  # Indicates no zero zone
