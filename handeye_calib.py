@@ -3,7 +3,7 @@ from pathlib import Path
 import cv2 as cv
 import numpy as np
 
-from cam_calib.aruco_relative_pose import CharucoMethod, get_camera_pose
+from cam_calib.aruco_relative_pose import CharucoMethod, get_marker_pose
 
 
 def homo_to_R_t(C, inv=False):
@@ -58,7 +58,7 @@ def main():
             continue
         if vis:
             print(i)
-        target2cam = get_camera_pose(image, method)
+        target2cam = get_marker_pose(image, method)
         if target2cam is None:
             missed += 1
             undetected.append(i)

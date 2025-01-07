@@ -1,4 +1,4 @@
-from basler_camera import BaslerCamera
+from .basler_camera import BaslerCamera
 
 
 def init_camera():

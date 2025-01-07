@@ -1,9 +1,6 @@
-from typing import TYPE_CHECKING
-
 import numpy as np
 
-if TYPE_CHECKING:
-    from ctu_crs.crs_robot import CRSRobot
+from ctu_crs.crs_robot import CRSRobot
 
 
 def move_ik(robot: CRSRobot, pos_goal: np.ndarray):

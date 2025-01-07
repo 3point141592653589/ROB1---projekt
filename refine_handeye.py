@@ -6,7 +6,7 @@ from ctu_crs import CRS97
 from ctu_crs.crs_robot import CRSRobot
 from scipy.optimize import least_squares
 
-from cam_calib.chessboard_calibration import CharucoMethod
+from cam_calib.chessboard_calibration import CharucoPointMatcher
 
 
 def optimize_reprojection(
@@ -141,7 +141,7 @@ if __name__ == "__main__":
     target2gripper = np.load("./handeye_output5/target2gripper.npy")
     K = np.load("./cam_calib/cam_params/K.npy")
     dist = np.load("./cam_calib/cam_params/dist.npy")
-    target_method = CharucoMethod((4, 4), 0.025, 0.018)
+    target_method = CharucoPointMatcher((4, 4), 0.025, 0.018)
     data_dir = Path("./handeye_data5/")
     out_dir = Path("./handeye_output_refined5")
     out_dir.mkdir(exist_ok=True)
