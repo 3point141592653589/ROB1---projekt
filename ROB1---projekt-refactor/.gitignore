@@ -1,0 +1,45 @@
+
+__pycache__
+chessboard 30x30mm
+handeye_data
+cam_calib/chessboard 25x25mm
+cam_calib/phone_imgs
+cam_calib/cam_params/25mm
+cam_calib/cam_params/25mm2
+cam_calib/cam_params/30mm
+example
+handeye_data2
+pick_examples.py
+test move copy.py
+test move.py
+test move.py
+cam_calib/cam_params/phone
+cam_calib/chessboard30
+cam_calib/chessboard30picked
+cam_calib/deska-1-2
+cam_calib/aruco-20241229T201232Z-001.zip
+cam_calib/chess30new-20241229T141117Z-001.zip
+cam_calib/chessboard30-20241229T141118Z-001.zip
+handeye_data3
+handeye_data-20241229T151540Z-001.zip
+cam_calib/charuco_test
+cam_calib/phone_charuco
+cam_calib/phone_charuco_pos
+cam_calib/charuco30mm
+cam_calib/crs97_charuco30mm-20241231T093241Z-001.zip
+handeye_data.zip
+handeye_data4
+cam_calib/charuco20_15
+cam_calib/charuco20_15.zip
+cam_calib/charuco_test.png
+handeye_data5
+tst_reproj
+handeye_data (1).zip
+handeye_data_patek
+handeye_output_patek/drive-download-20250103T163455Z-001.zip
+sanity_check.py
+ROB1---projekt-kalibrace_experimental/__pycache__
+ROB1---projekt-kalibrace_experimental/__pycache__
+ROB1---projekt-kalibrace_experimental/__pycache__
+ROB1---projekt-kalibrace_experimental/cam_calib/__pycache__
+datasets/deska_7_8
