@@ -17,5 +17,7 @@ def axis_rot_matrix(th: float, axis: str):
 def euler2mat(theta_axis_list: list[tuple[float, str]]):
     ret = np.eye(4)
     for th, axis in theta_axis_list:
-        ret = ret @ axis_rot_matrix(th, axis)
+        rot_tf = np.eye(4)
+        rot_tf[:3, :3] = axis_rot_matrix(th, axis)
+        ret = ret @ rot_tf
     return ret

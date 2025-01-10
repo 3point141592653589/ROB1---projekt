@@ -2,7 +2,7 @@ from pathlib import Path
 
 import cv2 as cv
 import numpy as np
-from .vision import PointMatcher, CharucoPointMatcher
+from vision import PointMatcher, CharucoPointMatcher
 
 
 def get_image_errors(imgpoints, objpoints, rvecs, tvecs, K, dist):
@@ -41,7 +41,7 @@ def chessboard_calibration(
         method(objpoints, imgpoints, gray)
 
         cv.imshow("img", gray)
-        cv.waitKey(50)
+        cv.waitKey(0)
 
     cv.destroyAllWindows()
     flags = cv.CALIB_FIX_K3
@@ -77,18 +77,18 @@ def chessboard_calibration(
 
 
 if __name__ == "__main__":
-    # K_init = np.array([[4666, 0, 960], [0, 4666, 600], [0, 0, 1]], dtype="float64")
-    K_init = None
+    K_init = np.array([[4666, 0, 960], [0, 4666, 600], [0, 0, 1]], dtype="float64")
+    #K_init = None
     method = CharucoPointMatcher((10, 14), 20, 15)
     err, K, dist, _, _ = chessboard_calibration(
         method,
-        "./charuco20_15/",
+        "./datasets/cam_calib_1.10/",
         K_init=K_init,
     )
     print(err)
     print(dist)
     print(K)
-    dir = Path("./cam_params/")
+    dir = Path("./cam_params2/")
     dir.mkdir(exist_ok=True)
     np.save(dir / "K.npy", K)
     np.save(dir / "dist.npy", dist)
