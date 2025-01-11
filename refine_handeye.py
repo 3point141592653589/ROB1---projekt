@@ -6,7 +6,7 @@ from ctu_crs import CRS97
 from ctu_crs.crs_robot import CRSRobot
 from scipy.optimize import least_squares
 
-from cam_calib.chessboard_calibration import CharucoPointMatcher
+from vision.point_matching import CharucoPointMatcher
 
 
 def optimize_reprojection(
@@ -18,6 +18,7 @@ def optimize_reprojection(
     K: np.ndarray,
     dist: np.ndarray,
     robot: CRSRobot,
+    min_points=8,
 ):
     # src_points and dst_points have shape (3, n)
     t2g_R = cv.Rodrigues(t2g[:3, :3])[0].squeeze()
@@ -59,6 +60,8 @@ def optimize_reprojection(
         errs = []
 
         for angles, objp, imgp in zip(angles_list, objps, imgps):
+            if objp.shape[0] < min_points:
+                continue
             objp_homo = np.vstack((objp.squeeze().T, np.ones(len(objp))))
             g2b = robot.fk(angles)
             cam_points = (np.linalg.inv(_c2b) @ g2b @ _t2g @ objp_homo)[:3]
@@ -71,7 +74,6 @@ def optimize_reprojection(
     result = least_squares(
         objective,
         initial_guess,
-        method="lm",
     )
     (
         tx_t2g,
@@ -137,13 +139,13 @@ def constrained_orthogonal_procrustes(
 
 
 if __name__ == "__main__":
-    cam2base = np.load("./handeye_output5/cam2base.npy")
-    target2gripper = np.load("./handeye_output5/target2gripper.npy")
-    K = np.load("./cam_calib/cam_params/K.npy")
-    dist = np.load("./cam_calib/cam_params/dist.npy")
-    target_method = CharucoPointMatcher((4, 4), 0.025, 0.018)
-    data_dir = Path("./handeye_data5/")
-    out_dir = Path("./handeye_output_refined5")
+    cam2base = np.load("./handeye_output/cam2base.npy")
+    target2gripper = np.load("./handeye_output/target2gripper.npy")
+    K = np.load("./cam_params2/K.npy")
+    dist = np.load("./cam_params2/dist.npy")
+    target_method = CharucoPointMatcher((5, 5), 0.020, 0.015)
+    data_dir = Path("./handeye_data/")
+    out_dir = Path("./handeye_output_refined")
     out_dir.mkdir(exist_ok=True)
     n_data = len(list(data_dir.glob("*"))) // 3  # HACK: getting sick of this
     objps, imgps, angles_list = [], [], []
@@ -173,7 +175,7 @@ if __name__ == "__main__":
         "original",
         target2gripper,
         "offset",
-        dh_offset,
+        np.rad2deg(dh_offset),
         sep="\n",
     )
     np.save(out_dir / "cam2base.npy", cam2base_refined)

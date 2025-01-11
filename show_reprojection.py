@@ -6,12 +6,12 @@ from ctu_crs import CRS97
 
 cam2base = np.load("./handeye_output_refined/cam2base.npy")
 target2gripper = np.load("./handeye_output_refined/target2gripper.npy")
-K = np.load("./cam_calib/cam_params/K.npy")
-dist = np.load("./cam_calib/cam_params/dist.npy")
+K = np.load("./cam_params2/K.npy")
+dist = np.load("./cam_params2/dist.npy")
 data_dir = Path("./handeye_data/")
 dh_offset = np.load("./handeye_output_refined/dh_offset.npy")
-# img_is = [50, 204, 208, 224]
-img_is = [40, 67, 200, 329, 350, 367]
+n_data = len(list(data_dir.glob("*"))) // 3  # HACK: getting sick of this
+img_is = list(range(400, n_data, 3))
 
 board_size = (6, 6)
 square_size = 0.02
@@ -49,6 +49,8 @@ for i in img_is:
         x, y = point.ravel()
         cv.circle(image, (int(x), int(y)), 5, (0, 255, 0), -1)  # Green circles
 
+    cv.namedWindow("Projected Points", cv.WINDOW_NORMAL)
+    cv.resizeWindow("Projected Points", 960, 600)
     cv.imshow("Projected Points", image)
     cv.waitKey(0)
     cv.destroyAllWindows()

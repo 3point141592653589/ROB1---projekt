@@ -33,7 +33,6 @@ def move_rotated_ik(robot: CRSRobot, pos_goal: np.ndarray, z_angles: list[float]
     if not qs:
         return False
     q = closest_q(qs, robot.get_q())
-    q[-1] *= -1
     robot.move_to_q(q)
     robot.wait_for_motion_stop()
     return True

@@ -3,7 +3,7 @@ from pathlib import Path
 import cv2 as cv
 import numpy as np
 
-from cam_calib.aruco_relative_pose import CharucoMethod, get_marker_pose
+from vision.marker_pose import CharucoPoseSolver, get_marker_pose
 
 
 def homo_to_R_t(C, inv=False):
@@ -26,11 +26,11 @@ def get_outlier_indices_iqr(arr, k=1.5):
 
 
 def main():
-    K = np.load("cam_calib/cam_params/K.npy")
-    dist = np.load("cam_calib/cam_params/dist.npy")
+    K = np.load("cam_params2/K.npy")
+    dist = np.load("cam_params2/dist.npy")
     calib_data = Path("handeye_data/")
     out_dir = Path("handeye_output/")
-    method = CharucoMethod(K, dist, (5, 5), 0.02, 0.015)
+    method = CharucoPoseSolver(K, dist, (5, 5), 0.02, 0.015)
     n_data = len(list(calib_data.glob("*"))) // 4  # HACK: getting sick of this
 
     enhance = False

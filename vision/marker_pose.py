@@ -48,9 +48,9 @@ class CharucoPoseSolver(MarkerPoseSolver):
             return None, None
         objp, imgp = self.board.matchImagePoints(charucoCorners, charucoIds)
         cv.aruco.drawDetectedCornersCharuco(img, charucoCorners, charucoIds)
-        if len(objp) < 4:
+        if len(objp) < 6:
             return None, None
-        method = cv.SOLVEPNP_IPPE if len(objp) > 4 else cv.SOLVEPNP_IPPE_SQUARE
+        method = cv.SOLVEPNP_IPPE
         _, rvec, tvec = cv.solvePnP(
             np.array(objp),
             np.array(imgp),
