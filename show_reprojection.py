@@ -4,12 +4,12 @@ import cv2 as cv
 import numpy as np
 from ctu_crs import CRS97
 
-cam2base = np.load("./handeye_output_refined/cam2base.npy")
-target2gripper = np.load("./handeye_output_refined/target2gripper.npy")
-K = np.load("./cam_params2/K.npy")
-dist = np.load("./cam_params2/dist.npy")
-data_dir = Path("./handeye_data/")
-dh_offset = np.load("./handeye_output_refined/dh_offset.npy")
+cam2base = np.load("./calibration_data/handeye_output_refined/cam2base.npy")
+target2gripper = np.load("./calibration_data/handeye_output_refined/target2gripper.npy")
+K = np.load("./calibration_data/cam_params3/K.npy")
+dist = np.load("./calibration_data/cam_params3/dist.npy")
+data_dir = Path("./datasets/handeye_data/")
+dh_offset = np.load("./calibration_data/handeye_output_refined/dh_offset.npy")
 n_data = len(list(data_dir.glob("*"))) // 3  # HACK: getting sick of this
 img_is = list(range(400, n_data, 3))
 

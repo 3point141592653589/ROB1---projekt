@@ -26,12 +26,12 @@ def get_outlier_indices_iqr(arr, k=1.5):
 
 
 def main():
-    K = np.load("cam_params2/K.npy")
-    dist = np.load("cam_params2/dist.npy")
-    calib_data = Path("handeye_data/")
-    out_dir = Path("handeye_output/")
+    K = np.load("./calibration_data/cam_params3/K.npy")
+    dist = np.load("./calibration_data/cam_params3/dist.npy")
+    calib_data = Path("./datasets/handeye_data/")
+    out_dir = Path("./calibration_data/handeye_output/")
     method = CharucoPoseSolver(K, dist, (5, 5), 0.02, 0.015)
-    n_data = len(list(calib_data.glob("*"))) // 4  # HACK: getting sick of this
+    n_data = len(list(calib_data.glob("*"))) // 3  # HACK: getting sick of this
 
     enhance = False
     vis = False

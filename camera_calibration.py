@@ -42,7 +42,7 @@ def chessboard_calibration(
         method(objpoints, imgpoints, gray)
 
         cv.imshow("img", gray)
-        cv.waitKey(0)
+        cv.waitKey(100)
 
     cv.destroyAllWindows()
     flags = cv.CALIB_FIX_K3
@@ -78,18 +78,16 @@ def chessboard_calibration(
 
 
 if __name__ == "__main__":
-    K_init = np.array([[4666, 0, 960], [0, 4666, 600], [0, 0, 1]], dtype="float64")
+    K_init = np.array([[4800, 0, 960], [0, 4800, 600], [0, 0, 1]], dtype="float64")
     # K_init = None
     method = CharucoPointMatcher((10, 14), 20, 15)
     err, K, dist, _, _ = chessboard_calibration(
-        method,
-        "./datasets/cam_calib_1.10/",
-        K_init=K_init,
+        method, "./datasets/cam_calib_1.10/", K_init=K_init, no_dist=False
     )
     print(err)
     print(dist)
     print(K)
-    dir = Path("./cam_params2_nodist/")
+    dir = Path("./calibration_data/cam_params3/")
     dir.mkdir(exist_ok=True)
     np.save(dir / "K.npy", K)
     np.save(dir / "dist.npy", dist)
