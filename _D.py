@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # from ctu_crs import CRS93
-from ctu_crs import CRS97
+# from ctu_crs import CRS97
+from hardware_control.robot.crs_class_patch import CRS97Patch
 
 from hardware_control.camera import init_camera
 from hardware_control.operations import move_cubes
@@ -20,7 +21,7 @@ def get_cube_data(tray_id):
 
 
 # robot = None
-robot = CRS97(tty_dev="/dev/mars")
+robot = CRS97Patch(tty_dev="/dev/mars")
 
 
 robot.initialize(home=False)

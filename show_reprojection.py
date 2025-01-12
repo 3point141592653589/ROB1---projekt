@@ -11,7 +11,7 @@ dist = np.load("./calibration_data/cam_params3/dist.npy")
 data_dir = Path("./datasets/handeye_data/")
 dh_offset = np.load("./calibration_data/handeye_output_refined/dh_offset.npy")
 n_data = len(list(data_dir.glob("*"))) // 3  # HACK: getting sick of this
-img_is = list(range(400, n_data, 3))
+img_is = list(range(n_data))
 
 board_size = (6, 6)
 square_size = 0.02
@@ -44,10 +44,10 @@ for i in img_is:
         dist,
     )
     gx, gy = gripper_proj.ravel()
-    cv.circle(image, (int(gx), int(gy)), 7, (255, 0, 0), -1)
+    cv.circle(image, (int(gx), int(gy)), 11, (255, 0, 0), -1)
     for point in projp:
         x, y = point.ravel()
-        cv.circle(image, (int(x), int(y)), 5, (0, 255, 0), -1)  # Green circles
+        cv.circle(image, (int(x), int(y)), 7, (0, 255, 0), -1)  # Green circles
 
     cv.namedWindow("Projected Points", cv.WINDOW_NORMAL)
     cv.resizeWindow("Projected Points", 960, 600)
