@@ -139,13 +139,15 @@ def constrained_orthogonal_procrustes(
 
 
 if __name__ == "__main__":
-    cam2base = np.load("./calibration_data/handeye_output/cam2base.npy")
-    target2gripper = np.load("./calibration_data/handeye_output/target2gripper.npy")
-    K = np.load("./calibration_data/cam_params3/K.npy")
-    dist = np.load("./calibration_data/cam_params3/dist.npy")
+    cam2base = np.load("./calibration_data/handeye_output_final/cam2base.npy")
+    target2gripper = np.load(
+        "./calibration_data/handeye_output_final/target2gripper.npy"
+    )
+    K = np.load("./calibration_data/cam_params_final/K.npy")
+    dist = np.load("./calibration_data/cam_params_final/dist.npy")
     target_method = CharucoPointMatcher((5, 5), 0.020, 0.015)
     data_dir = Path("./datasets/handeye_data/")
-    out_dir = Path("./calibration_data/handeye_output_refined")
+    out_dir = Path("./calibration_data/handeye_output_refined_final")
     out_dir.mkdir(exist_ok=True)
     n_data = len(list(data_dir.glob("*"))) // 3  # HACK: getting sick of this
     objps, imgps, angles_list = [], [], []
