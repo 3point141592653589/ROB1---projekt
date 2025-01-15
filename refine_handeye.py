@@ -165,6 +165,7 @@ if __name__ == "__main__":
         K,
         dist,
         CRS97(None),
+        min_points=10,
     )
     print(
         "cam2base",
